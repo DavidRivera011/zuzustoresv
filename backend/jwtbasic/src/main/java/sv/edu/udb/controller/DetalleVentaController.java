@@ -2,6 +2,7 @@ package sv.edu.udb.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sv.edu.udb.model.DetalleVenta;
 import sv.edu.udb.service.DetalleVentaService;
@@ -24,6 +25,12 @@ public class DetalleVentaController {
         return detalleVentaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/por-venta/{ventaId}")
+    @PreAuthorize("hasAnyRole('EMPLEADO','ADMIN')")
+    public List<DetalleVenta> buscarPorVenta(@PathVariable Long ventaId) {
+        return detalleVentaService.buscarPorVentaId(ventaId);
     }
 
     @PostMapping

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class RegisterRequest {
     @NotBlank(message = "El nombre es obligatorio")
@@ -25,4 +27,9 @@ public class RegisterRequest {
 
     private String fechaNacimiento;
     private String telefono;
+
+    private String fechaIngreso;
+    private String fechaSalida;
+    private BigDecimal salario;
+
 }

@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import sv.edu.udb.model.Cliente;
 import sv.edu.udb.model.Usuario;
 
 import java.security.Key;
@@ -29,9 +30,24 @@ public class JwtService {
 
     public String generateToken(Usuario usuario) {
         return Jwts.builder()
-                // Usa el campo correcto de tu modelo Usuario (correo)
                 .setSubject(usuario.getCorreo())
-                .claim("rol", usuario.getRol())
+                .claim("id", usuario.getId())
+                .claim("nombre", usuario.getNombres())
+                .claim("apellido", usuario.getApellidos())
+                .claim("rol", usuario.getRol().name())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateToken(Cliente cliente) {
+        return Jwts.builder()
+                .setSubject(cliente.getCorreo())
+                .claim("id", cliente.getId())
+                .claim("nombre", cliente.getNombres())
+                .claim("apellido", cliente.getApellidos())
+                .claim("rol", "cliente")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -60,5 +76,13 @@ public class JwtService {
                 .getBody()
                 .getExpiration()
                 .before(new Date());
+    }
+    public <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {
+        final Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claimsResolver.apply(claims);
     }
 }

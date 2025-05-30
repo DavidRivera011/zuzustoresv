@@ -2,21 +2,23 @@ package sv.edu.udb.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sv.edu.udb.dto.AuthResponse;
 import sv.edu.udb.dto.LoginRequest;
 import sv.edu.udb.dto.RegisterRequest;
+import sv.edu.udb.model.Cliente;
 import sv.edu.udb.model.Usuario;
 import sv.edu.udb.repository.UsuarioRepository;
+import sv.edu.udb.repository.ClienteRepository;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
@@ -27,11 +29,7 @@ public class AuthService {
                 .apellidos(request.getApellido())
                 .correo(request.getCorreo())
                 .contrasena(passwordEncoder.encode(request.getContrasena()))
-                .rol(
-                        request.getRol() != null && request.getRol().equalsIgnoreCase("admin")
-                                ? Usuario.Rol.admin
-                                : Usuario.Rol.empleado
-                )
+                .rol(Usuario.Rol.cliente)
                 .estado(Usuario.Estado.activo)
                 .telefono(request.getTelefono())
                 .fechaNacimiento(
@@ -47,19 +45,51 @@ public class AuthService {
         return new AuthResponse(token);
     }
 
-
     public AuthResponse login(LoginRequest request) {
-        try {
-            authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getCorreo(), request.getContrasena())
-            );
-        } catch (AuthenticationException e) {
-            throw new RuntimeException("Credenciales inválidas");
+        // Intentar encontrar el usuario en la tabla usuario
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(request.getCorreo());
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            if (passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
+                String token = jwtService.generateToken(usuario);
+                return new AuthResponse(token);
+            } else {
+                throw new RuntimeException("Credenciales inválidas");
+            }
         }
 
-        Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        String token = jwtService.generateToken(usuario);
-        return new AuthResponse(token);
+        // Si no está en usuario, buscar en cliente-
+        Optional<Cliente> clienteOpt = clienteRepository.findByCorreo(request.getCorreo());
+        if (clienteOpt.isPresent()) {
+            Cliente cliente = clienteOpt.get();
+            if (passwordEncoder.matches(request.getContrasena(), cliente.getContrasena())) {
+                String token = jwtService.generateToken(cliente);
+                return new AuthResponse(token);
+            } else {
+                throw new RuntimeException("Credenciales inválidas");
+            }
+        }
+
+        // Si no está en ninguno
+        throw new RuntimeException("Credenciales inválidas");
+    }
+
+    public void registerEmpleado(RegisterRequest request) {
+        Usuario usuario = Usuario.builder()
+                .nombres(request.getNombre())
+                .apellidos(request.getApellido())
+                .correo(request.getCorreo())
+                .contrasena(passwordEncoder.encode(request.getContrasena()))
+                .rol(Usuario.Rol.empleado)
+                .estado(Usuario.Estado.activo)
+                .telefono(request.getTelefono())
+                .fechaNacimiento(
+                        request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()
+                                ? java.time.LocalDate.parse(request.getFechaNacimiento())
+                                : null
+                )
+                .build();
+
+        usuarioRepository.save(usuario);
     }
 }

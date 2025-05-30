@@ -31,6 +31,9 @@ public class Cliente {
     @Column(length = 20)
     private String telefono;
 
+    @Column(name = "fecha_registro")
+    private LocalDate fechaRegistro;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private Estado estado = Estado.activo;
