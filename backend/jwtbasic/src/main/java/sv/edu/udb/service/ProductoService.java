@@ -17,6 +17,10 @@ public class ProductoService {
         return productoRepository.findAll();
     }
 
+    public List<Producto> listarDisponibles() {
+        return productoRepository.findByEstado(Producto.EstadoProducto.disponible);
+    }
+
     public Optional<Producto> buscarPorId(Long id) {
         return productoRepository.findById(id);
     }
@@ -28,4 +32,6 @@ public class ProductoService {
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }
+
+
 }

@@ -35,4 +35,7 @@ public class MovimientoInventario {
     public enum TipoMovimiento {
         entrada, salida, devolucion
     }
+
+    @Column(name = "stock_resultante")
+    private Integer stockResultante;
 }

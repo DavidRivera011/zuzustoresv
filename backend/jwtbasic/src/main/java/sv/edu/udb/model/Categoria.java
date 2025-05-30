@@ -7,7 +7,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

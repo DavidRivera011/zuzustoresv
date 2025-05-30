@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,19 +45,23 @@ public class Usuario implements UserDetails {
     @Builder.Default
     private Estado estado = Estado.activo;
 
-    public enum Rol {
-        admin, empleado
-    }
+    @Column(name = "fecha_ingreso")
+    private LocalDate fechaIngreso;
+
+    @Column(name = "fecha_salida")
+    private LocalDate fechaSalida;
+
+    @Column(name = "salario")
+    private BigDecimal salario;
+
+    public enum Rol { admin, empleado, cliente }
 
     public enum Estado {
         activo, inactivo
     }
 
-    // Implementación de UserDetails
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Retorna el rol como autoridad de Spring Security
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.rol.name().toUpperCase()));
     }
 

@@ -3,9 +3,15 @@ package sv.edu.udb.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
@@ -25,4 +31,8 @@ public class RegisterRequest {
 
     private String fechaNacimiento;
     private String telefono;
+
+    private String fechaIngreso;
+    private String fechaSalida;
+    private BigDecimal salario;
 }
