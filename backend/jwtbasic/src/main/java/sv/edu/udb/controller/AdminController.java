@@ -24,8 +24,6 @@ public class AdminController {
     public Map<String, Object> getEstadisticas() {
         Map<String, Object> estadisticas = new HashMap<>();
 
-        // Usar Enum como parámetro (NO String)
-        BigDecimal ganancias = ventaRepository.sumaTotalByEstado(EstadoVenta.entregado);
         BigDecimal devoluciones = ventaRepository.sumaTotalByEstado(EstadoVenta.devolucion);
         BigDecimal cancelaciones = ventaRepository.sumaTotalByEstado(EstadoVenta.cancelado);
 

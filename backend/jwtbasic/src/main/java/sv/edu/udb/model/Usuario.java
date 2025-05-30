@@ -49,7 +49,7 @@ public class Usuario implements UserDetails {
     private LocalDate fechaIngreso;
 
     @Column(name = "fecha_salida")
-    private LocalDate fechaSalida; // Puede ser null
+    private LocalDate fechaSalida;
 
     @Column(name = "salario")
     private BigDecimal salario;

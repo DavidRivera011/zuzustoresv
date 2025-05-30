@@ -46,7 +46,6 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        // Intentar encontrar el usuario en la tabla usuario
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(request.getCorreo());
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
@@ -58,7 +57,6 @@ public class AuthService {
             }
         }
 
-        // Si no está en usuario, buscar en cliente-
         Optional<Cliente> clienteOpt = clienteRepository.findByCorreo(request.getCorreo());
         if (clienteOpt.isPresent()) {
             Cliente cliente = clienteOpt.get();
@@ -70,26 +68,6 @@ public class AuthService {
             }
         }
 
-        // Si no está en ninguno
         throw new RuntimeException("Credenciales inválidas");
-    }
-
-    public void registerEmpleado(RegisterRequest request) {
-        Usuario usuario = Usuario.builder()
-                .nombres(request.getNombre())
-                .apellidos(request.getApellido())
-                .correo(request.getCorreo())
-                .contrasena(passwordEncoder.encode(request.getContrasena()))
-                .rol(Usuario.Rol.empleado)
-                .estado(Usuario.Estado.activo)
-                .telefono(request.getTelefono())
-                .fechaNacimiento(
-                        request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()
-                                ? java.time.LocalDate.parse(request.getFechaNacimiento())
-                                : null
-                )
-                .build();
-
-        usuarioRepository.save(usuario);
     }
 }
