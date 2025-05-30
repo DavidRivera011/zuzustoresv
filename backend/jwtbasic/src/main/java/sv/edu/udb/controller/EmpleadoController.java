@@ -2,14 +2,13 @@ package sv.edu.udb.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import sv.edu.udb.model.Usuario;
 import sv.edu.udb.model.Venta;
-import sv.edu.udb.repository.MovimientoInventarioRepository;
-import sv.edu.udb.repository.ProductoRepository;
-import sv.edu.udb.repository.UsuarioRepository;
-import sv.edu.udb.repository.VentaRepository;
+import sv.edu.udb.repository.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +24,7 @@ public class EmpleadoController {
     private final ProductoRepository productoRepository;
     private final VentaRepository ventaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
 
     private Usuario getUsuarioFromPrincipal(Object principal) {
         String correo;

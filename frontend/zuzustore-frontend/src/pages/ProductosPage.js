@@ -283,8 +283,8 @@ function ProductosPage() {
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas" />
         <SidebarImageIcon
           src={iconorden}
-          alt="Registros"
-          to="/registro-inventario"
+          alt="Órdenes"
+          to="/ordenadminpage"
         />
         <SidebarImageIcon
           src={iconuser}

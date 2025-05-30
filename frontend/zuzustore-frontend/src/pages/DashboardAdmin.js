@@ -163,7 +163,7 @@ function DashboardAdmin() {
         <SidebarImageIcon
           src={iconorden}
           alt="Órdenes"
-          to="/registro-inventario"
+          to="/ordenadminpage"
         />
         <SidebarImageIcon
           src={iconuser}

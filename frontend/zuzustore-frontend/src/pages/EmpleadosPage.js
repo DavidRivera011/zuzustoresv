@@ -283,17 +283,17 @@ function EmpleadosPage() {
           to="/movimientos"
         />
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas" />
-        <SidebarImageIcon
-          src={iconorden}
-          alt="Órdenes"
-          to="/registro-inventario"
-        />
+        <SidebarImageIcon src={iconorden} alt="Órdenes" to="/ordenadminpage" />
         <SidebarImageIcon
           src={iconuser}
           alt="Gestor de Empleados"
           to="/empleados"
         />
-        <SidebarImageIcon src={iconclientes} alt="Gestor de Clientes" to="/clientes" />
+        <SidebarImageIcon
+          src={iconclientes}
+          alt="Gestor de Clientes"
+          to="/clientes"
+        />
       </aside>
       {/* Main content */}
       <div style={{ flex: 1 }}>

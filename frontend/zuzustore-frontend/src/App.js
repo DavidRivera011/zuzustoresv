@@ -5,6 +5,7 @@ import Registro from "./pages/Registro";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import DashboardEmpleado from "./pages/DashboardEmpleado";
 import PrivateRoute from "./components/PrivateRoute";
+import SemiPrivateRoute from "./components/SemiPrivateRoute";
 import EmpleadosPage from "./pages/EmpleadosPage";
 import ProductosPage from "./pages/ProductosPage";
 import VentasPage from "./pages/VentasPage";
@@ -16,12 +17,14 @@ import ProductosStockPage from "./pages/ProductosStockPage";
 import ReportesBasicosEmpleado from "./pages/ReportesBasicosEmpleado";
 import CatalogoPage from "./pages/CatalogoPage";
 import ClientesPage from "./pages/ClientesPage";
+import OrdenEmpleadoPage from "./pages/OrdenEmpleadoPage";
+import OrdenAdminPage from "./pages/OrdenAdminPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/CatalogoPage" />} />
+        <Route path="/" element={<Navigate to="/catalogopage" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
 
@@ -92,6 +95,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/ordenadminpage"
+          element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <OrdenAdminPage />
+            </PrivateRoute>
+          }
+        />
 
         {/* SOLO EMPLEADO */}
         <Route
@@ -126,7 +137,22 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/catalogopage" element={<CatalogoPage />} />
+        <Route
+          path="/orden-empleados"
+          element={
+            <PrivateRoute allowedRoles={["empleado"]}>
+              <OrdenEmpleadoPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/catalogopage"
+          element={
+            <SemiPrivateRoute>
+              <CatalogoPage />
+            </SemiPrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

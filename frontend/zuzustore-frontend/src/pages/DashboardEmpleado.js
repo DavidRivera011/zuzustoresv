@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 const icondash = "/img/icondashwhite.png";
 const iconventas = "/img/iconventawhite.png";
 const iconmovimientos = "/img/movimientowhite.png";
+const iconorden = "/img/iconordeneswhite.png";
 
 Chart.register(BarElement, CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 
@@ -155,6 +156,7 @@ function DashboardEmpleado() {
         <SidebarImageIcon src={icondash} alt="Dashboard" to="/dashboard-empleado" />
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas-empleado" />
         <SidebarImageIcon src={iconmovimientos} alt="Mis Movimientos" to="/mis-movimientos" />
+        <SidebarImageIcon src={iconorden} alt="Mis Ordenes" to="/orden-empleados" />
       </aside>
       {/* Main content */}
       <div style={{ flex: 1 }}>

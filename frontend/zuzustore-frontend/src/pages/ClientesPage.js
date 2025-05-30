@@ -115,13 +115,9 @@ function ClientesPage() {
         );
       } else {
         // AGREGAR
-        await axios.post(
-          "http://localhost:8080/api/clientes/register",
-          datos,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axios.post("http://localhost:8080/api/clientes/register", datos, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
       handleCloseModal();
       fetchClientes();
@@ -154,10 +150,9 @@ function ClientesPage() {
   const handleDeleteCliente = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(
-        `http://localhost:8080/api/clientes/${idEliminar}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.delete(`http://localhost:8080/api/clientes/${idEliminar}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setShowDeleteModal(false);
       setIdEliminar(null);
       fetchClientes();
@@ -270,17 +265,17 @@ function ClientesPage() {
           to="/movimientos"
         />
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas" />
-        <SidebarImageIcon
-          src={iconorden}
-          alt="Órdenes"
-          to="/registro-inventario"
-        />
+        <SidebarImageIcon src={iconorden} alt="Órdenes" to="/ordenadminpage" />
         <SidebarImageIcon
           src={iconuser}
           alt="Gestor de Empleados"
           to="/empleados"
         />
-        <SidebarImageIcon src={iconclientes} alt="Gestor de Clientes" to="/clientes" />
+        <SidebarImageIcon
+          src={iconclientes}
+          alt="Gestor de Clientes"
+          to="/clientes"
+        />
       </aside>
       {/* Main content */}
       <div style={{ flex: 1 }}>
@@ -366,7 +361,10 @@ function ClientesPage() {
                 ¿Cerrar sesión?
               </div>
               <div className="d-flex justify-content-between">
-                <Button variant="secondary" onClick={() => setShowLogout(false)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowLogout(false)}
+                >
                   Cancelar
                 </Button>
                 <Button variant="danger" onClick={handleLogout}>
@@ -421,26 +419,78 @@ function ClientesPage() {
                 <Table bordered hover responsive>
                   <thead>
                     <tr>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("id")}>
-                        ID {columnaOrden === "id" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("id")}
+                      >
+                        ID{" "}
+                        {columnaOrden === "id" ? (ascendente ? "▲" : "▼") : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("nombres")}>
-                        Nombres {columnaOrden === "nombres" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("nombres")}
+                      >
+                        Nombres{" "}
+                        {columnaOrden === "nombres"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("apellidos")}>
-                        Apellidos {columnaOrden === "apellidos" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("apellidos")}
+                      >
+                        Apellidos{" "}
+                        {columnaOrden === "apellidos"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("correo")}>
-                        Correo {columnaOrden === "correo" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("correo")}
+                      >
+                        Correo{" "}
+                        {columnaOrden === "correo"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("fechaNacimiento")}>
-                        Fecha Nacimiento {columnaOrden === "fechaNacimiento" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("fechaNacimiento")}
+                      >
+                        Fecha Nacimiento{" "}
+                        {columnaOrden === "fechaNacimiento"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("telefono")}>
-                        Teléfono {columnaOrden === "telefono" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("telefono")}
+                      >
+                        Teléfono{" "}
+                        {columnaOrden === "telefono"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
-                      <th style={{ cursor: "pointer" }} onClick={() => cambiarOrden("estado")}>
-                        Estado {columnaOrden === "estado" ? (ascendente ? "▲" : "▼") : ""}
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => cambiarOrden("estado")}
+                      >
+                        Estado{" "}
+                        {columnaOrden === "estado"
+                          ? ascendente
+                            ? "▲"
+                            : "▼"
+                          : ""}
                       </th>
                       <th>Acciones</th>
                     </tr>
@@ -464,8 +514,14 @@ function ClientesPage() {
                           <td>
                             <span
                               style={{
-                                color: cli.estado === "activo" ? "#388e3c" : "#d32f2f",
-                                background: cli.estado === "activo" ? "#e8f5e9" : "#ffebee",
+                                color:
+                                  cli.estado === "activo"
+                                    ? "#388e3c"
+                                    : "#d32f2f",
+                                background:
+                                  cli.estado === "activo"
+                                    ? "#e8f5e9"
+                                    : "#ffebee",
                                 padding: "2px 8px",
                                 borderRadius: 8,
                                 fontWeight: 600,
@@ -490,7 +546,9 @@ function ClientesPage() {
                   </tbody>
                 </Table>
                 {/* Paginador */}
-                <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+                <div
+                  style={{ display: "flex", justifyContent: "center", gap: 8 }}
+                >
                   <Button
                     variant="outline-secondary"
                     size="sm"
@@ -502,7 +560,9 @@ function ClientesPage() {
                   {Array.from({ length: totalPaginas }, (_, i) => (
                     <Button
                       key={i + 1}
-                      variant={paginaActual === i + 1 ? "primary" : "outline-secondary"}
+                      variant={
+                        paginaActual === i + 1 ? "primary" : "outline-secondary"
+                      }
                       size="sm"
                       onClick={() => setPaginaActual(i + 1)}
                     >

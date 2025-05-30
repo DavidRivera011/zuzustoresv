@@ -22,6 +22,8 @@ function Login() {
           navigate("/dashboard-admin");
         } else if (decoded.rol === "empleado") {
           navigate("/dashboard-empleado");
+        } else if (decoded.rol === "cliente") {
+          navigate("/");
         }
       } catch (e) {}
     }
@@ -48,10 +50,13 @@ function Login() {
     setMensaje("");
     if (!validar()) return;
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
-        correo,
-        contrasena,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        {
+          correo,
+          contrasena,
+        }
+      );
       localStorage.setItem("token", response.data.token);
       setMensaje("¡Login exitoso!");
       const decoded = jwtDecode(response.data.token);
@@ -137,7 +142,9 @@ function Login() {
             <input
               type="password"
               placeholder="Contraseña"
-              className={`custom-input ${errores.contrasena ? "input-error" : ""}`}
+              className={`custom-input ${
+                errores.contrasena ? "input-error" : ""
+              }`}
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}
               style={{ width: "100%" }}
