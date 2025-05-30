@@ -2,7 +2,6 @@ package sv.edu.udb.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,24 +15,34 @@ public class Orden {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
-
-    @Column(nullable = false)
-    private LocalDateTime fechaCreacion;
-
-    @Column(nullable = false)
-    private BigDecimal total;
+    private LocalDateTime fecha;
 
     @Enumerated(EnumType.STRING)
-    private EstadoOrden estado;
+    @Builder.Default
+    private EstadoOrden estado = EstadoOrden.pendiente;
 
-    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemOrden> items;
+    private String telefono;
+    private String correo;
+    private String direccionEntrega;
+
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
+    private List<DetalleOrden> detalles;
+
+    @PrePersist
+    public void prePersist() {
+        if (fecha == null) fecha = LocalDateTime.now();
+        if (telefono == null && cliente != null) telefono = cliente.getTelefono();
+        if (correo == null && cliente != null) correo = cliente.getCorreo();
+    }
 
     public enum EstadoOrden {
-        pendiente, en_proceso, finalizada, cancelada
+        pendiente,
+        procesando,
+        entregada,
+        cancelada
     }
 }

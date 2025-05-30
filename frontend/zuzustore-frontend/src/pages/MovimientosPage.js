@@ -266,7 +266,7 @@ Stock actual: ${producto.stock}, Cantidad a retirar: ${cantidad}`
         <SidebarImageIcon
           src={iconorden}
           alt="Órdenes"
-          to="/registro-inventario"
+          to="/ordenadminpage"
         />
         <SidebarImageIcon
           src={iconuser}

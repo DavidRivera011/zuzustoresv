@@ -21,7 +21,6 @@ class UserDetailsServiceImplTest {
     @BeforeEach
     void setUp() {
         usuarioRepository = mock(UsuarioRepository.class);
-        userDetailsService = new UserDetailsServiceImpl(usuarioRepository);
     }
 
     @Test

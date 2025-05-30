@@ -5,6 +5,7 @@ import { FiMenu } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
 
+// ICONOS
 const icondash = "/img/icondashwhite.png";
 const iconproductos = "/img/iconproductowhite.png";
 const iconventas = "/img/iconventawhite.png";
@@ -15,11 +16,11 @@ const iconclientes = "/img/clienticonwhite.png";
 
 function getEstadoColor(estado) {
   switch ((estado || "").toLowerCase()) {
-    case "entregado":
+    case "entregada":
       return "#4caf50";
-    case "devolucion":
+    case "procesando":
       return "#2196f3";
-    case "cancelado":
+    case "cancelada":
       return "#f44336";
     case "pendiente":
     default:
@@ -49,20 +50,23 @@ function SidebarImageIcon({ src, alt, to }) {
   );
 }
 
-function VentasAdminPage() {
-  const [ventas, setVentas] = useState([]);
+function OrdenAdminPage() {
+  const [ordenes, setOrdenes] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [usuario, setUsuario] = useState({ nombre: "Usuario", rol: "Rol" });
+  const [usuario, setUsuario] = useState({
+    nombre: "Admin",
+    rol: "Admin",
+  });
   const [paginaActual, setPaginaActual] = useState(1);
   const [columnaOrden, setColumnaOrden] = useState("id");
   const [ascendente, setAscendente] = useState(true);
-  const filasPorPagina = 13;
+  const filasPorPagina = 10;
   const [showMenu, setShowMenu] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
 
   // Detalle
-  const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
-  const [detallesVenta, setDetallesVenta] = useState([]);
+  const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
+  const [detallesOrden, setDetallesOrden] = useState([]);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
   useEffect(() => {
@@ -71,53 +75,58 @@ function VentasAdminPage() {
       try {
         const decoded = jwtDecode(token);
         setUsuario({
-          nombre: decoded.nombre || decoded.username || "Usuario",
+          nombre: decoded.nombre || decoded.username || "Admin",
           apellido: decoded.apellido || "",
-          rol: decoded.rol ? capitalize(decoded.rol) : "Rol",
+          rol: decoded.rol ? capitalize(decoded.rol) : "Admin",
         });
       } catch {
-        setUsuario({ nombre: "Usuario", rol: "Rol" });
+        setUsuario({ nombre: "Admin", rol: "Admin" });
       }
     }
-    fetchVentas();
+    fetchOrdenes();
+    // eslint-disable-next-line
   }, []);
 
-  const fetchVentas = async () => {
+  const fetchOrdenes = async () => {
     setCargando(true);
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.get("http://localhost:8080/api/ventas", {
+      const res = await axios.get("http://localhost:8080/api/ordenes", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setVentas(res.data);
+      setOrdenes(res.data);
     } catch {
-      setVentas([]);
+      setOrdenes([]);
     }
     setCargando(false);
   };
 
-  // Detalle de venta
-  const handleSeleccionarVenta = (venta) => {
-    setVentaSeleccionada(venta);
+  // Detalle de orden
+  const handleSeleccionarOrden = (orden) => {
+    setOrdenSeleccionada(orden);
     setCargandoDetalle(true);
-    setDetallesVenta([]);
+    setDetallesOrden([]);
     const token = localStorage.getItem("token");
-    axios
-      .get(`http://localhost:8080/api/detalle-ventas/por-venta/${venta.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setDetallesVenta(res.data))
-      .catch(() => setDetallesVenta([]))
-      .finally(() => setCargandoDetalle(false));
+    if (orden.detalles) {
+      setDetallesOrden(orden.detalles);
+      setCargandoDetalle(false);
+    } else {
+      axios
+        .get(`http://localhost:8080/api/ordenes/${orden.id}/detalles`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => setDetallesOrden(res.data))
+        .catch(() => setDetallesOrden([]))
+        .finally(() => setCargandoDetalle(false));
+    }
   };
 
   // Ordenamiento y paginación
-  const getSortedVentas = () => {
-    const sorted = [...ventas].sort((a, b) => {
+  const getSortedOrdenes = () => {
+    const sorted = [...ordenes].sort((a, b) => {
       let valorA = a[columnaOrden] ?? "";
       let valorB = b[columnaOrden] ?? "";
-      // Números y fechas
-      if (columnaOrden === "id" || columnaOrden === "total") {
+      if (columnaOrden === "id") {
         valorA = Number(valorA);
         valorB = Number(valorB);
       }
@@ -132,9 +141,9 @@ function VentasAdminPage() {
     return sorted;
   };
 
-  const ventasOrdenadas = getSortedVentas();
-  const totalPaginas = Math.ceil(ventasOrdenadas.length / filasPorPagina);
-  const ventasPagina = ventasOrdenadas.slice(
+  const ordenesOrdenadas = getSortedOrdenes();
+  const totalPaginas = Math.ceil(ordenesOrdenadas.length / filasPorPagina);
+  const ordenesPagina = ordenesOrdenadas.slice(
     (paginaActual - 1) * filasPorPagina,
     paginaActual * filasPorPagina
   );
@@ -149,10 +158,28 @@ function VentasAdminPage() {
     setPaginaActual(1);
   };
 
-  // LOGOUT HEADER
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/login";
+  };
+
+  const handleEstadoChange = async (ordenId, nuevoEstado) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(
+        `http://localhost:8080/api/ordenes/${ordenId}/estado`,
+        JSON.stringify(nuevoEstado),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      fetchOrdenes();
+    } catch (err) {
+      alert("No se pudo cambiar el estado de la orden.");
+    }
   };
 
   return (
@@ -213,7 +240,6 @@ function VentasAdminPage() {
           <span style={{ marginRight: 8, cursor: "pointer" }}>
             {usuario.nombre} {usuario.apellido} | {usuario.rol}
           </span>
-          {/* Avatar con menú */}
           <div style={{ position: "relative" }}>
             <FaUserCircle
               size={30}
@@ -301,7 +327,7 @@ function VentasAdminPage() {
               marginBottom: 18,
             }}
           >
-            <h2 style={{ margin: 0 }}>Ventas</h2>
+            <h2 style={{ margin: 0 }}>Órdenes de Clientes (Admin)</h2>
           </div>
           <div
             style={{
@@ -315,7 +341,7 @@ function VentasAdminPage() {
               marginTop: 20,
             }}
           >
-            {/* Tabla de ventas IZQUIERDA */}
+            {/* Tabla de órdenes IZQUIERDA */}
             <div style={{ flex: 2 }}>
               {cargando ? (
                 <Spinner />
@@ -347,79 +373,78 @@ function VentasAdminPage() {
                             : ""}
                         </th>
                         <th>Cliente</th>
-                        <th>Empleado</th>
-                        <th
-                          style={{ cursor: "pointer" }}
-                          onClick={() => cambiarOrden("total")}
-                        >
-                          Total{" "}
-                          {columnaOrden === "total"
-                            ? ascendente
-                              ? "▲"
-                              : "▼"
-                            : ""}
-                        </th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
                         <th>Estado</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {ventasPagina.length === 0 ? (
+                      {ordenesPagina.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="text-center">
-                            No hay ventas
+                            No hay órdenes
                           </td>
                         </tr>
                       ) : (
-                        ventasPagina.map((venta) => (
+                        ordenesPagina.map((orden) => (
                           <tr
-                            key={venta.id}
-                            onClick={() => handleSeleccionarVenta(venta)}
+                            key={orden.id}
+                            onClick={() => handleSeleccionarOrden(orden)}
                             style={{
                               cursor: "pointer",
                               background:
-                                ventaSeleccionada &&
-                                ventaSeleccionada.id === venta.id
+                                ordenSeleccionada &&
+                                ordenSeleccionada.id === orden.id
                                   ? "#fce4ec"
                                   : "white",
                             }}
                           >
-                            <td>{venta.id}</td>
+                            <td>{orden.id}</td>
                             <td>
-                              {venta.fecha
-                                ? new Date(venta.fecha).toLocaleString()
+                              {orden.fecha
+                                ? new Date(orden.fecha).toLocaleString()
                                 : "-"}
                             </td>
+                            <td>{orden.cliente || "-"}</td>
+                            <td>{orden.telefono || "-"}</td>
+                            <td>{orden.correo || "-"}</td>
                             <td>
-                              {venta.cliente
-                                ? `${venta.cliente.nombres} ${venta.cliente.apellidos}`
-                                : "-"}
-                            </td>
-                            <td>
-                              {venta.empleado
-                                ? `${venta.empleado.nombres} ${venta.empleado.apellidos}`
-                                : "-"}
-                            </td>
-                            <td>
-                              {venta.total !== undefined && venta.total !== null
-                                ? `$${venta.total}`
-                                : "-"}
-                            </td>
-                            <td>
-                              <span
-                                style={{
-                                  background: getEstadoColor(venta.estado),
-                                  color: "#fff",
-                                  padding: "4px 12px",
-                                  borderRadius: 14,
-                                  fontWeight: 600,
-                                  fontSize: 13,
-                                  display: "inline-block",
-                                  minWidth: 95,
-                                  textAlign: "center",
-                                }}
-                              >
-                                {capitalize(venta.estado)}
-                              </span>
+                              {orden.estado === "pendiente" ? (
+                                <select
+                                  value={orden.estado}
+                                  style={{
+                                    background: "#fff5d7",
+                                    borderRadius: 8,
+                                    fontWeight: 600,
+                                    color: "#7d1445",
+                                    padding: "4px 8px",
+                                    border: "1px solid #eee",
+                                  }}
+                                  onChange={(e) =>
+                                    handleEstadoChange(orden.id, e.target.value)
+                                  }
+                                >
+                                  <option value="pendiente">Pendiente</option>
+                                  <option value="entregada">Entregada</option>
+                                  <option value="cancelada">Cancelada</option>
+                                </select>
+                              ) : (
+                                <span
+                                  style={{
+                                    background: getEstadoColor(orden.estado),
+                                    color: "#fff",
+                                    padding: "4px 12px",
+                                    borderRadius: 14,
+                                    fontWeight: 600,
+                                    fontSize: 13,
+                                    display: "inline-block",
+                                    minWidth: 95,
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {capitalize(orden.estado)}
+                                </span>
+                              )}
                             </td>
                           </tr>
                         ))
@@ -469,7 +494,7 @@ function VentasAdminPage() {
                 </>
               )}
             </div>
-            {/* Tabla de detalle de venta DERECHA */}
+            {/* Detalle de la orden DERECHA */}
             <div
               style={{
                 flex: 1,
@@ -481,23 +506,23 @@ function VentasAdminPage() {
               }}
             >
               <h4 style={{ textAlign: "center", marginBottom: 8 }}>
-                Detalle de venta
+                Detalle de Orden
               </h4>
-              {!ventaSeleccionada ? (
+              {!ordenSeleccionada ? (
                 <div style={{ textAlign: "center", color: "#888" }}>
-                  Selecciona una venta para ver los detalles
+                  Selecciona una orden para ver los detalles
                 </div>
               ) : cargandoDetalle ? (
                 <Spinner />
-              ) : detallesVenta.length === 0 ? (
+              ) : detallesOrden.length === 0 ? (
                 <div style={{ textAlign: "center", color: "#888" }}>
-                  Sin detalles para esta venta
+                  Sin detalles para esta orden
                 </div>
               ) : (
                 <div
                   style={{ display: "flex", flexDirection: "column", gap: 16 }}
                 >
-                  {detallesVenta.map((d) => (
+                  {detallesOrden.map((d) => (
                     <div
                       key={d.id}
                       style={{
@@ -519,7 +544,7 @@ function VentasAdminPage() {
                           marginBottom: 4,
                         }}
                       >
-                        {d.producto?.nombre || `Producto ID: ${d.producto_id}`}
+                        {d.producto || `Producto ID: ${d.producto_id}`}
                       </div>
                       <div style={{ fontSize: 14 }}>
                         <b>ID Detalle:</b> {d.id}
@@ -553,4 +578,4 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export default VentasAdminPage;
+export default OrdenAdminPage;

@@ -49,6 +49,9 @@ public class AuthService {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(request.getCorreo());
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
+            if (usuario.getEstado() != Usuario.Estado.activo) {
+                throw new RuntimeException("Cuenta inactiva. Contacta al administrador.");
+            }
             if (passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
                 String token = jwtService.generateToken(usuario);
                 return new AuthResponse(token);
@@ -60,6 +63,9 @@ public class AuthService {
         Optional<Cliente> clienteOpt = clienteRepository.findByCorreo(request.getCorreo());
         if (clienteOpt.isPresent()) {
             Cliente cliente = clienteOpt.get();
+            if (cliente.getEstado() != Cliente.Estado.activo) {
+                throw new RuntimeException("Cuenta inactiva. Contacta al administrador.");
+            }
             if (passwordEncoder.matches(request.getContrasena(), cliente.getContrasena())) {
                 String token = jwtService.generateToken(cliente);
                 return new AuthResponse(token);
@@ -70,4 +76,5 @@ public class AuthService {
 
         throw new RuntimeException("Credenciales inválidas");
     }
+
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/api/productos/public",
                                 "/api/productos/public/**"
                         ).permitAll()
+                        .requestMatchers("/api/auth/me").hasAnyRole("EMPLEADO", "ADMIN", "CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(daoAuthenticationProvider())

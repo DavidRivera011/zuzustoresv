@@ -9,6 +9,7 @@ import Select from "react-select";
 // ICONOS
 const icondash = "/img/icondashwhite.png";
 const iconventas = "/img/iconventawhite.png";
+const iconorden = "/img/iconordeneswhite.png";
 const iconmovimientos = "/img/movimientowhite.png";
 
 function SidebarImageIcon({ src, alt, to }) {
@@ -242,13 +243,18 @@ Stock actual: ${producto.stock}, Cantidad a retirar: ${cantidad}`
         <SidebarImageIcon
           src={icondash}
           alt="Dashboard"
-          to="/dashboard-admin"
+          to="/dashboard-empleado"
         />
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas-empleado" />
         <SidebarImageIcon
           src={iconmovimientos}
-          alt="Movimientos"
+          alt="Mis Movimientos"
           to="/mis-movimientos"
+        />
+        <SidebarImageIcon
+          src={iconorden}
+          alt="Mis Ordenes"
+          to="/orden-empleados"
         />
       </aside>
       {/* Main content */}

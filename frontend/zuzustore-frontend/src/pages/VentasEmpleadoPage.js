@@ -9,6 +9,7 @@ import Select from "react-select";
 
 const icondash = "/img/icondashwhite.png";
 const iconventas = "/img/iconventawhite.png";
+const iconorden = "/img/iconordeneswhite.png";
 const iconmovimientos = "/img/movimientowhite.png";
 
 const ESTADOS_OPCIONES = [
@@ -311,8 +312,13 @@ function VentasEmpleadoPage() {
         <SidebarImageIcon src={iconventas} alt="Ventas" to="/ventas-empleado" />
         <SidebarImageIcon
           src={iconmovimientos}
-          alt="Movimientos"
+          alt="Mis Movimientos"
           to="/mis-movimientos"
+        />
+        <SidebarImageIcon
+          src={iconorden}
+          alt="Mis Ordenes"
+          to="/orden-empleados"
         />
       </aside>
       {/* Main content */}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode"; // IMPORTANTE
 
 const MOCK_LOGO = "/img/zuzulogo.png";
 
@@ -9,6 +10,9 @@ function CatalogoPage() {
   const [showCarrito, setShowCarrito] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const [finalizandoCompra, setFinalizandoCompra] = useState(false);
+  const [mensajeCompra, setMensajeCompra] = useState("");
 
   // Detectar si el usuario está logueado
   const isLogged = !!localStorage.getItem("token");
@@ -59,14 +63,70 @@ function CatalogoPage() {
       }
     };
     window.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      window.removeEventListener("mousedown", handleClickOutside);
+    return () => window.removeEventListener("mousedown", handleClickOutside);
   }, [showUserMenu]);
 
   const totalPrecio = carrito.reduce(
     (sum, prod) => sum + Number(prod.precio),
     0
   );
+
+  const handleFinalizarCompra = async () => {
+    if (carrito.length === 0) return;
+
+    setFinalizandoCompra(true);
+    setMensajeCompra("");
+    const token = localStorage.getItem("token");
+
+    let clienteId = null;
+    // Decodifica el JWT para sacar el id del cliente
+    try {
+      const decoded = jwtDecode(token);
+      clienteId = decoded.id || decoded.sub || null;
+    } catch {
+      setMensajeCompra("No se pudo identificar el usuario.");
+      setFinalizandoCompra(false);
+      return;
+    }
+
+    if (!clienteId) {
+      setMensajeCompra("No se pudo identificar el usuario.");
+      setFinalizandoCompra(false);
+      return;
+    }
+
+    // Arma los items
+    const items = carrito.map((prod) => ({
+      productoId: prod.id,
+      cantidad: 1, // Si tienes selector de cantidad, cámbialo aquí
+    }));
+
+    // Arma el request
+    const data = {
+      clienteId,
+      items,
+      // puedes agregar telefono, direccionEntrega, etc si lo pides en el frontend
+    };
+
+    try {
+      await axios.post("http://localhost:8080/api/ordenes", data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMensajeCompra("¡Compra realizada con éxito! Revisa tu correo.");
+      setCarrito([]);
+      setTimeout(() => {
+        setShowCarrito(false);
+        setMensajeCompra("");
+      }, 2000);
+    } catch (err) {
+      setMensajeCompra(
+        err?.response?.data?.message ||
+          "Error al procesar la compra. Intenta de nuevo."
+      );
+    } finally {
+      setFinalizandoCompra(false);
+    }
+  };
 
   // NUEVO: Manejo del click en el ícono de usuario
   const handleUserIconClick = () => {
@@ -161,7 +221,10 @@ function CatalogoPage() {
             )}
           </div>
           {/* Otros iconos */}
-          <i className="fa fa-search" style={{ fontSize: 18, cursor: "pointer" }}></i>
+          <i
+            className="fa fa-search"
+            style={{ fontSize: 18, cursor: "pointer" }}
+          ></i>
           <i
             className="fa fa-shopping-cart"
             style={{ fontSize: 22, cursor: "pointer", marginLeft: 6 }}
@@ -228,10 +291,13 @@ function CatalogoPage() {
           onClose={() => setShowCarrito(false)}
           onEliminar={eliminarDelCarrito}
           totalPrecio={totalPrecio}
+          onFinalizarCompra={handleFinalizarCompra}
+          finalizandoCompra={finalizandoCompra}
+          mensajeCompra={mensajeCompra}
         />
       )}
 
-      {/* Modal de Login necesario (TAMBIÉN SE USA PARA EL ICONO DE USUARIO SIN SESIÓN) */}
+      {/* Modal de Login necesario */}
       {showLoginModal && (
         <LoginModal
           onClose={() => setShowLoginModal(false)}
@@ -341,8 +407,16 @@ function CardProducto({ producto, onAgregar }) {
   );
 }
 
-// Carrito lateral (no hace falta tocarlo para la lógica del modal)
-function CarritoLateral({ carrito, onClose, onEliminar, totalPrecio }) {
+// Carrito lateral
+function CarritoLateral({
+  carrito,
+  onClose,
+  onEliminar,
+  totalPrecio,
+  onFinalizarCompra,
+  finalizandoCompra,
+  mensajeCompra,
+}) {
   return (
     <div
       style={{
@@ -479,11 +553,32 @@ function CarritoLateral({ carrito, onClose, onEliminar, totalPrecio }) {
             fontSize: 18,
             fontWeight: 700,
             border: "none",
-            cursor: "pointer",
+            cursor: finalizandoCompra ? "wait" : "pointer",
+            opacity: finalizandoCompra ? 0.7 : 1,
           }}
+          onClick={onFinalizarCompra}
+          disabled={carrito.length === 0 || finalizandoCompra}
         >
-          Finalizar compra
+          {finalizandoCompra ? "Procesando..." : "Finalizar compra"}
         </button>
+        {mensajeCompra && (
+          <div
+            style={{
+              color: mensajeCompra.startsWith("¡Compra")
+                ? "#388e3c"
+                : "#c2185b",
+              background: "#fbe9ea",
+              borderRadius: 7,
+              padding: "7px 12px",
+              marginTop: 10,
+              textAlign: "center",
+              fontWeight: 500,
+              fontSize: 15,
+            }}
+          >
+            {mensajeCompra}
+          </div>
+        )}
       </div>
     </div>
   );

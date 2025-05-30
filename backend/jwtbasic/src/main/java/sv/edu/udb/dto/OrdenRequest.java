@@ -6,10 +6,13 @@ import java.util.List;
 @Data
 public class OrdenRequest {
     private Long clienteId;
-    private List<ItemRequest> items;
+    private String telefono;
+    private String correo;
+    private String direccionEntrega;
+    private List<ItemCarrito> items;
 
     @Data
-    public static class ItemRequest {
+    public static class ItemCarrito {
         private Long productoId;
         private Integer cantidad;
     }
